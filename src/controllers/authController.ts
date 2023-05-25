@@ -9,7 +9,6 @@ const register = async (req: Request, res: Response) => {
   const { username, password, email, userType } = req.body;
   try {
     const hashedPassword = await argon2.hash(password);
-
     const newUser = new User({
       username,
       email,
@@ -18,10 +17,8 @@ const register = async (req: Request, res: Response) => {
 
     });
 
-    
     newUser.save();
     mailRegister("Your account has been created by Admin", email);
-
     response(res, 200, true, "user successfully registered");
   } catch (err) {
     console.log(err);
@@ -49,6 +46,7 @@ const login = async (req: Request, res: Response) => {
       _id: user._id,
       username: user.username,
       email: user.email,
+      userType: user.userType
     };
 
     // updateRefreshToken(user._id, token.refreshToken);

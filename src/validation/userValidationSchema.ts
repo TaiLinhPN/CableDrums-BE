@@ -3,7 +3,6 @@ import Joi from "joi";
 export const registerSchema = Joi.object({
   username: Joi.string()
     .trim()
-    .pattern(/^[^0-9]+$/)
     .pattern(/^\S.*\S$/)
     .replace(/[\s]+/g, " ")
     .strict()
@@ -19,7 +18,10 @@ export const registerSchema = Joi.object({
     .strict()
     .min(6)
     .required(),
-  email: Joi.string().email().required(),
+  email: Joi.string()
+    .email()
+    .regex(/\.energysure-tech@/)
+    .required(),
   userType: Joi.string()
     .valid("admin", "planner", "supplyVendor", "projectContractor")
     .required(),
@@ -37,6 +39,3 @@ export const loginSchema = Joi.object({
   email: Joi.string().email().required(),
 });
 
-export const getBackOtpSchema = Joi.object({
-  email: Joi.string().email().required(),
-});
