@@ -10,14 +10,6 @@ export const registerSchema = Joi.object({
     .regex(/^.*\S*.*$/)
     .max(30)
     .required(),
-  password: Joi.string()
-    .pattern(/^(?=.*[a-zA-Z])/)
-    .pattern(/^(?=.*\d)/)
-    .pattern(/^(?=.*[!@#$%^&*])/)
-    .trim()
-    .strict()
-    .min(6)
-    .required(),
   email: Joi.string()
     .email()
     .regex(/\.energysure-tech@/)
@@ -38,4 +30,3 @@ export const loginSchema = Joi.object({
     .required(),
   email: Joi.string().email().required(),
 });
-

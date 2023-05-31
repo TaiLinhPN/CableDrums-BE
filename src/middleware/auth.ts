@@ -1,7 +1,8 @@
 import jwt from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
+import { handleServerError, sendResponse } from "../helper/response";
 
-interface AuthenticatedRequest extends Request {
+export interface AuthenticatedRequest extends Request {
   userId?: string;
 }
 
@@ -23,15 +24,11 @@ export const verifyToken = (
       token,
       process.env.ACCESS_TOKEN_SECRET as string
     ) as { userId: string };
-    req.userId = decoded.userId;
-    next();
+
+    if ((req.userId = decoded.userId)) {
+      next();
+    } else sendResponse(res, 403, "Invalid access token");
   } catch (error) {
-    console.log(error);
-    return res
-      .status(403)
-      .json({ success: false, message: "Invalid access token" });
+    handleServerError(res, error);
   }
 };
-
-
-

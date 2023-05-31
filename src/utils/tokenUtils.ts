@@ -1,5 +1,5 @@
-import Jwt from 'jsonwebtoken';
-import * as dotenv from 'dotenv';
+import Jwt from "jsonwebtoken";
+import * as dotenv from "dotenv";
 // import RefreshToken from '../models/RefreshToken';
 dotenv.config();
 
@@ -8,14 +8,14 @@ const generateToken = (payload: string) => {
     { userId: payload },
     process.env.ACCESS_TOKEN_SECRET,
     {
-      expiresIn: '1h',
+      expiresIn: "1h",
     }
   );
   const refreshToken = Jwt.sign(
     { userId: payload },
     process.env.REFRESH_TOKEN_SECRET,
     {
-      expiresIn: '1d',
+      expiresIn: "1d",
     }
   );
   return { accessToken, refreshToken };

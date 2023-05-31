@@ -1,35 +1,33 @@
-import { Request, Response } from 'express';
-import User from '../models/User';
-import { response } from '../utils/responseUtils';
+import { Request, Response } from "express";
+import User from "../models/User";
+import { handleServerError, sendResponse } from "../helper/response";
 import {
   loginSchema,
   registerSchema,
-} from '../validation/userValidationSchema';
+} from "../validation/userValidationSchema";
 
-export const userRegisterValidation = async(
+export const userCreateValidation = async (
   req: Request,
   res: Response,
   next: any
 ) => {
   const validation = registerSchema.validate(req.body);
-  
+
   if (validation.error) {
     return res.status(400).json({
-      errors: validation.error.details[0].path[0] + ' is not a valid',
+      errors: validation.error.details[0].path[0] + " is not a valid",
     });
   }
-  let {email}= req.body;
+  let { email } = req.body;
   try {
-     email = await User.findOne({ email });
-  if (email ) {
-      return response(res, 400, false, 'email already exists');
+    email = await User.findOne({ email });
+    if (email) {
+      return sendResponse(res, 400, "email already exists");
     }
-  next();
+    next();
   } catch (error) {
-    console.log(error);
-    return response(res, 500, false,'Internal server error');
+    return handleServerError(res, error);
   }
- 
 };
 
 export const userLoginValidation = (req: Request, res: Response, next: any) => {
@@ -37,7 +35,7 @@ export const userLoginValidation = (req: Request, res: Response, next: any) => {
 
   if (validation.error) {
     return res.status(400).json({
-      errors: validation.error.details[0].path[0] + ' is not a valid',
+      errors: validation.error.details[0].path[0] + " is not a valid",
     });
   }
 

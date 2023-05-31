@@ -1,4 +1,8 @@
+import { handleServerError, sendResponse } from "../helper/response";
+import { AuthenticatedRequest } from "../middleware/auth";
 import User from "../models/User";
+import { mailRegister } from "../utils/mailUtils";
+import argon2 from "argon2";
 
 export const findUser = async (req, res) => {
   const { query } = req.body;
@@ -28,5 +32,71 @@ export const getUsers = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server Error" });
+  }
+};
+
+export const removeUser = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const user = await User.findById(userId);
+    if (user && user.userType !== "admin") {
+      const isDeleteUser = await User.findByIdAndDelete(userId);
+      if (isDeleteUser) {
+        global._io.emit("remove-account", userId);
+        return sendResponse(res, 204, "User has been deleted");
+      }
+    }
+    return sendResponse(
+      res,
+      404,
+      "User not found or you do not have permission to delete an Admin account"
+    );
+  } catch (error) {
+    return handleServerError(res, error);
+  }
+};
+
+export const createUser = async (req, res) => {
+  const { username, email, userType } = req.body;
+  try {
+    const password = await argon2.hash("qwert@123!");
+    const newUser = new User({
+      username,
+      email,
+      userType,
+      password,
+    });
+    newUser.save();
+    const publicUser = {
+      _id: newUser._id,
+      username: newUser.username,
+      email: newUser.email,
+      userType: newUser.userType,
+    };
+    global._io.emit("new-account", publicUser);
+    mailRegister("Your account has been created", email);
+    sendResponse(res, 200, "user successfully created");
+  } catch (err) {
+    return handleServerError(res, err);
+  }
+};
+
+export const updatePassword = async (req: AuthenticatedRequest, res) => {
+  const userId = req.userId;
+  const { password } = req.body;
+  try {
+    const newPassword = await User.findByIdAndUpdate(userId, {
+      password: password,
+    });
+    if (!newPassword) {
+      return sendResponse(
+        res,
+        201,
+        "Update password unsuccessfully, try again"
+      );
+    }
+    sendResponse(res, 201, "Update password successfully");
+  } catch (error) {
+    return handleServerError(res, error);
   }
 };

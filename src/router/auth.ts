@@ -1,12 +1,6 @@
-import express from 'express';
-import {
-  register,
-  login,
-} from '../controllers/authController';
-import {
-  userLoginValidation,
-  userRegisterValidation,
-} from '../middleware/validation';
+import express from "express";
+import { login } from "../controllers/authController";
+import { userLoginValidation } from "../middleware/validation";
 
 const router = express.Router();
 
@@ -14,9 +8,6 @@ const router = express.Router();
 // @desc Register user
 // @access Public
 
-router.post('/register', userRegisterValidation, register);
-
-router.post('/login', userLoginValidation, login);
-
+router.post("/login", userLoginValidation, login);
 
 export default router;

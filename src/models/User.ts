@@ -4,7 +4,12 @@ export interface IUser extends Document {
   username: string;
   password: string;
   email: string;
-  userType: "admin" | "planner" | "supplyVendor" | "projectContractor";
+  userType:
+    | "admin"
+    | "administrator"
+    | "planner"
+    | "supplyVendor"
+    | "projectContractor";
   createAt?: Date;
 }
 
