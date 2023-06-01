@@ -1,6 +1,6 @@
 import { Response } from "express";
 
-export function handleServerError(error: any, res: Response) {
+export function handleServerError(res: Response, error: any) {
   console.log(error);
   return res.status(500).json({ message: "Internal server error" });
 }

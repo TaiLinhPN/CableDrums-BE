@@ -1,5 +1,5 @@
 import express from "express";
-import { login } from "../controllers/authController";
+import { login, resetPassword } from "../controllers/authController";
 import { userLoginValidation } from "../middleware/validation";
 
 const router = express.Router();
@@ -9,5 +9,6 @@ const router = express.Router();
 // @access Public
 
 router.post("/login", userLoginValidation, login);
+router.post("/reset-password", resetPassword);
 
 export default router;

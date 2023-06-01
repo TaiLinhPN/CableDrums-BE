@@ -80,23 +80,3 @@ export const createUser = async (req, res) => {
     return handleServerError(res, err);
   }
 };
-
-export const updatePassword = async (req: AuthenticatedRequest, res) => {
-  const userId = req.userId;
-  const { password } = req.body;
-  try {
-    const newPassword = await User.findByIdAndUpdate(userId, {
-      password: password,
-    });
-    if (!newPassword) {
-      return sendResponse(
-        res,
-        201,
-        "Update password unsuccessfully, try again"
-      );
-    }
-    sendResponse(res, 201, "Update password successfully");
-  } catch (error) {
-    return handleServerError(res, error);
-  }
-};

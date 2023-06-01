@@ -9,21 +9,14 @@ export const login = async (req: Request, res: Response) => {
   try {
     const user = await User.findOne({ email });
     if (!user) {
-      console.log("user");
-      
-      return sendResponse(res, 401, "Incorrect email or password?");
+      return sendResponse(res, 404, "Incorrect email or password?");
     }
-
     const isMatch = await argon2.verify(user.password, password);
-
     if (!isMatch) {
-      console.log("pass");
-
       return sendResponse(res, 401, "Incorrect email or password?");
     }
-
-    if (password === "qwert@123!") {
-      return sendResponse(res, 201, "password defaults, reset password");
+    if (checkDefaultPassword(password)) {
+      return sendResponse(res, 400, "password defaults, reset password");
     }
 
     const token = generateToken(user._id);
@@ -42,3 +35,35 @@ export const login = async (req: Request, res: Response) => {
     return handleServerError(res, err);
   }
 };
+
+export const resetPassword = async (req: Request, res: Response) => {
+  const { password, email } = req.body;
+  console.log(password, email);
+  if (checkDefaultPassword(password)) {
+    return sendResponse(res, 400, "password defaults, enter another password");
+  }
+
+  try {
+    const passwordHashed = await argon2.hash(password);
+    console.log("passwordHashed", passwordHashed);
+    
+    const newPassword = await User.findOneAndUpdate(
+      { email: email },
+      { password: passwordHashed }
+    );
+    console.log("what", newPassword);
+
+    if (!newPassword) {
+      return sendResponse(res, 404, "Update password unsuccessfully, try again");
+    }
+    sendResponse(res, 200, "Update password successfully");
+  } catch (error) {
+    return handleServerError(res, error);
+  }
+};
+
+const checkDefaultPassword = (password: string) => { 
+  if (password === "qwert@123!") {
+    return true;
+  } else return false;
+}
