@@ -11,19 +11,18 @@ const verifyToken = (req, res, next) => {
     const token = authHeader && authHeader.split(" ")[1];
     if (!token) {
         return res
-            .status(401)
+            .status(403)
             .json({ success: false, message: "Access token not found" });
     }
     try {
         const decoded = jsonwebtoken_1.default.verify(token, process.env.ACCESS_TOKEN_SECRET);
-        if ((req.userId = decoded.userId)) {
-            next();
-        }
-        else
-            (0, response_1.sendResponse)(res, 403, "Invalid access token");
+        req.user = {
+            userId: decoded.userId,
+        };
+        next();
     }
     catch (error) {
-        (0, response_1.handleServerError)(res, error);
+        (0, response_1.sendResponse)(res, 403, "Invalid access token");
     }
 };
 exports.verifyToken = verifyToken;

@@ -8,10 +8,9 @@ const userContoller_1 = require("../controllers/userContoller");
 const validation_1 = require("../middleware/validation");
 const auth_1 = require("../middleware/auth");
 const router = express_1.default.Router();
-router.post("/find", userContoller_1.findUser);
-router.get("/get-all", userContoller_1.getUsers);
-router.delete("/delete/:userId", userContoller_1.removeUser);
-router.post("/create", validation_1.userCreateValidation, userContoller_1.createUser);
-router.post("/updatePassword", auth_1.verifyToken, userContoller_1.updatePassword);
+router.post("/find", auth_1.verifyToken, userContoller_1.findUser);
+router.get("/get-all", auth_1.verifyToken, userContoller_1.getUsers);
+router.delete("/delete/:userId", auth_1.verifyToken, userContoller_1.removeUser);
+router.post("/create", validation_1.userCreateValidation, auth_1.verifyToken, userContoller_1.createUser);
 exports.default = router;
 //# sourceMappingURL=user.js.map

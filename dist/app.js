@@ -13,6 +13,7 @@ const http_1 = __importDefault(require("http"));
 const socket_io_1 = require("socket.io");
 const auth_1 = __importDefault(require("./router/auth"));
 const user_1 = __importDefault(require("./router/user"));
+const contract_1 = __importDefault(require("./router/contract"));
 const socket_service_1 = __importDefault(require("./services/socket.service"));
 const PORT = 4001;
 mongoose_1.default.set("strictQuery", false);
@@ -37,6 +38,7 @@ app.get("/", (req, res) => {
 });
 app.use("/api/auth", auth_1.default);
 app.use("/api/user", user_1.default);
+app.use("/api/contract", contract_1.default);
 app.listen(PORT, () => {
     console.log("love u");
     return console.log(`Express is listening at http://localhost:${PORT}`);

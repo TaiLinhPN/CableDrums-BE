@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updatePassword = exports.createUser = exports.removeUser = exports.getUsers = exports.findUser = void 0;
+exports.createUser = exports.removeUser = exports.getUsers = exports.findUser = void 0;
 const response_1 = require("../helper/response");
 const User_1 = __importDefault(require("../models/User"));
 const mailUtils_1 = require("../utils/mailUtils");
@@ -81,21 +81,4 @@ const createUser = async (req, res) => {
     }
 };
 exports.createUser = createUser;
-const updatePassword = async (req, res) => {
-    const userId = req.userId;
-    const { password } = req.body;
-    try {
-        const newPassword = await User_1.default.findByIdAndUpdate(userId, {
-            password: password,
-        });
-        if (!newPassword) {
-            return (0, response_1.sendResponse)(res, 201, "Update password unsuccessfully, try again");
-        }
-        (0, response_1.sendResponse)(res, 201, "Update password successfully");
-    }
-    catch (error) {
-        return (0, response_1.handleServerError)(res, error);
-    }
-};
-exports.updatePassword = updatePassword;
 //# sourceMappingURL=userContoller.js.map

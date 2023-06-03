@@ -11,5 +11,6 @@ const router = express_1.default.Router();
 // @desc Register user
 // @access Public
 router.post("/login", validation_1.userLoginValidation, authController_1.login);
+router.post("/reset-password", authController_1.resetPassword);
 exports.default = router;
 //# sourceMappingURL=auth.js.map

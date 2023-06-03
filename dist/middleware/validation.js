@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.userLoginValidation = exports.userCreateValidation = void 0;
+exports.createContractValidation = exports.userLoginValidation = exports.userCreateValidation = void 0;
 const User_1 = __importDefault(require("../models/User"));
 const response_1 = require("../helper/response");
 const userValidationSchema_1 = require("../validation/userValidationSchema");
@@ -37,4 +37,7 @@ const userLoginValidation = (req, res, next) => {
     next();
 };
 exports.userLoginValidation = userLoginValidation;
+const createContractValidation = (req, res, next) => {
+};
+exports.createContractValidation = createContractValidation;
 //# sourceMappingURL=validation.js.map
