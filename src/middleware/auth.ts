@@ -3,7 +3,12 @@ import { Request, Response, NextFunction } from "express";
 import { handleServerError, sendResponse } from "../helper/response";
 
 export interface AuthenticatedRequest extends Request {
-  userId?: string;
+  user?: {
+    userId?: string;
+    username?: string;
+    userType?: string;
+    email?: string;
+  };
 }
 
 export const verifyToken = (
@@ -16,7 +21,7 @@ export const verifyToken = (
 
   if (!token) {
     return res
-      .status(401)
+      .status(403)
       .json({ success: false, message: "Access token not found" });
   }
   try {
@@ -25,10 +30,12 @@ export const verifyToken = (
       process.env.ACCESS_TOKEN_SECRET as string
     ) as { userId: string };
 
-    if ((req.userId = decoded.userId)) {
-      next();
-    } else sendResponse(res, 403, "Invalid access token");
+    req.user = {
+      userId: decoded.userId,
+    };
+
+    next();
   } catch (error) {
-    handleServerError(res, error);
+    sendResponse(res, 403, "Invalid access token");
   }
 };

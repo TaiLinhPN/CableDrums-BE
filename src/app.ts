@@ -8,6 +8,7 @@ import http from "http";
 import { Server, Socket } from "socket.io";
 import authRouter from "./router/auth";
 import userRouter from "./router/user";
+import contractRouter from "./router/contract";
 import SocketService from "./services/socket.service";
 
 const PORT = 4001;
@@ -38,6 +39,7 @@ app.get("/", (req, res) => {
 });
 app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
+app.use("/api/contract", contractRouter);
 
 app.listen(PORT, () => {
   console.log("love u");

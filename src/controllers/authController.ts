@@ -46,7 +46,7 @@ export const resetPassword = async (req: Request, res: Response) => {
   try {
     const passwordHashed = await argon2.hash(password);
     console.log("passwordHashed", passwordHashed);
-    
+
     const newPassword = await User.findOneAndUpdate(
       { email: email },
       { password: passwordHashed }
@@ -54,7 +54,11 @@ export const resetPassword = async (req: Request, res: Response) => {
     console.log("what", newPassword);
 
     if (!newPassword) {
-      return sendResponse(res, 404, "Update password unsuccessfully, try again");
+      return sendResponse(
+        res,
+        404,
+        "Update password unsuccessfully, try again"
+      );
     }
     sendResponse(res, 200, "Update password successfully");
   } catch (error) {
@@ -62,8 +66,8 @@ export const resetPassword = async (req: Request, res: Response) => {
   }
 };
 
-const checkDefaultPassword = (password: string) => { 
+const checkDefaultPassword = (password: string) => {
   if (password === "qwert@123!") {
     return true;
   } else return false;
-}
+};

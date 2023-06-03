@@ -41,3 +41,7 @@ export const userLoginValidation = (req: Request, res: Response, next: any) => {
 
   next();
 };
+
+export const createContractValidation = (req: Request, res: Response, next: any) => {
+  
+};
