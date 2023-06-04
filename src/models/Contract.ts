@@ -4,6 +4,7 @@ export interface IContract extends Document {
   supplyVendor: ObjectId;
   cableDrumCount: Number;
   cableDelivered: Number;
+  cableRequired: Number;
   expireAt: Date;
   createAt: Date;
 }
@@ -19,6 +20,10 @@ const ContractSchema: Schema = new mongoose.Schema({
     required: true,
   },
   cableDelivered: {
+    type: Number,
+    default: 0,
+  },
+  cableRequired: {
     type: Number,
     default: 0,
   },

@@ -3,29 +3,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getAllContracts = exports.createContract = void 0;
+exports.updateContract = exports.getAllContracts = exports.createContract = void 0;
 const formattedDate_1 = require("../helper/formattedDate");
 const response_1 = require("../helper/response");
 const Contract_1 = __importDefault(require("../models/Contract"));
-const User_1 = __importDefault(require("../models/User"));
 const createContract = async (req, res) => {
     try {
         const { supplyVendor, cableDrumCount, cableDelivered, expireAt } = req.body;
-        if (req.user.userType !== "admin") {
-            return (0, response_1.sendResponse)(res, 400, "You do not have permission to create a contract");
-        }
-        const IsSupplyVendor = await User_1.default.findById(supplyVendor).select("userType");
-        if (!IsSupplyVendor && (IsSupplyVendor === null || IsSupplyVendor === void 0 ? void 0 : IsSupplyVendor.userType) !== "supplyVendor") {
-            return (0, response_1.sendResponse)(res, 400, "Supply Vendor not found");
-        }
-        const newContract = new Contract_1.default({
+        const newContract = await new Contract_1.default({
             supplyVendor,
             cableDrumCount,
             cableDelivered,
             expireAt,
-        });
-        const contract = newContract.save();
-        if (!contract) {
+        }).save();
+        if (!newContract) {
             return (0, response_1.sendResponse)(res, 400, "Internal Server Error");
         }
         global._io.emit("new-Contract", newContract);
@@ -37,41 +28,15 @@ const createContract = async (req, res) => {
     }
 };
 exports.createContract = createContract;
-// export const getAllContracts = async (req, res) => {
-//   try {
-//     const contracts = await Contract.find();
-//     const modifiedData = contracts.map(
-//       ({
-//         _id,
-//         supplyVendor,
-//         cableDrumCount,
-//         cableDelivered,
-//         expireAt,
-//         createAt,
-//       }) => ({
-//         _id,
-//         supplyVendor,
-//         cableDrumCount,
-//         cableDelivered,
-//         expireAt: extractDate(expireAt),
-//         createAt: extractDate(createAt),
-//       })
-//     );
-//     // Send modifiedData to the client
-//     console.log(modifiedData);
-//     sendResponse(res, 201, "", modifiedData);
-//   } catch (err) {
-//     return handleServerError(res, err);
-//   }
-// };
 const getAllContracts = async (req, res) => {
     try {
         const contracts = await Contract_1.default.find().populate("supplyVendor", "username");
-        const modifiedData = contracts.map(({ _id, supplyVendor, cableDrumCount, cableDelivered, expireAt, createAt, }) => ({
+        const modifiedData = contracts.map(({ _id, supplyVendor, cableDrumCount, cableDelivered, cableRequired, expireAt, createAt, }) => ({
             _id,
             supplyVendor: supplyVendor,
             cableDrumCount,
             cableDelivered,
+            cableRequired,
             expireAt: (0, formattedDate_1.extractDate)(expireAt),
             createAt: (0, formattedDate_1.extractDate)(createAt),
         }));
@@ -82,4 +47,20 @@ const getAllContracts = async (req, res) => {
     }
 };
 exports.getAllContracts = getAllContracts;
+const updateContract = async (req, res) => {
+    const { contractId, cableRequired } = req.body;
+    try {
+        const updateContract = await Contract_1.default.findByIdAndUpdate(contractId, {
+            cableRequired,
+        });
+        if (!updateContract) {
+            return (0, response_1.sendResponse)(res, 400, "Cant update contract, try again");
+        }
+        (0, response_1.sendResponse)(res, 201, "contract update successful");
+    }
+    catch (error) {
+        (0, response_1.handleServerError)(res, error);
+    }
+};
+exports.updateContract = updateContract;
 //# sourceMappingURL=contractController.js.map

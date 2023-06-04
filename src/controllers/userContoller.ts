@@ -1,7 +1,7 @@
 import { handleServerError, sendResponse } from "../helper/response";
 import { AuthenticatedRequest } from "../middleware/auth";
 import User from "../models/User";
-import { mailRegister } from "../utils/mailUtils";
+import { mailRegister } from "../helper/sendMail";
 import argon2 from "argon2";
 
 export const findUser = async (req, res) => {

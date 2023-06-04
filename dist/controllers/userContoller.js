@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.createUser = exports.removeUser = exports.getUsers = exports.findUser = void 0;
 const response_1 = require("../helper/response");
 const User_1 = __importDefault(require("../models/User"));
-const mailUtils_1 = require("../utils/mailUtils");
+const sendMail_1 = require("../helper/sendMail");
 const argon2_1 = __importDefault(require("argon2"));
 const findUser = async (req, res) => {
     const { query } = req.body;
@@ -73,7 +73,7 @@ const createUser = async (req, res) => {
             userType: newUser.userType,
         };
         global._io.emit("new-account", publicUser);
-        (0, mailUtils_1.mailRegister)("Your account has been created", email);
+        (0, sendMail_1.mailRegister)("Your account has been created", email);
         (0, response_1.sendResponse)(res, 200, "user successfully created");
     }
     catch (err) {

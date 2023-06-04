@@ -6,3 +6,16 @@ supplyVendor=6472fa1fdb3339975183e258
 cableDrumCount=30
 cableDelivered=3
 expireAt=1-31-2024
+
+
+
+http://localhost:4001/api/order/create
+
+contractId=647b5ad807a7a506dcc9a7fa
+projectContractorId=647c898f5ea1b1f8b5d46c91
+cableDrumsToWithdraw=27
+
+http://localhost:4001/api/order/update/647b5af707a7a506dcc9a7fe
+
+status=completed
+note=ok take it away

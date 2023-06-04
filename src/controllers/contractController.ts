@@ -1,34 +1,22 @@
+import { Response } from "express";
 import { extractDate } from "../helper/formattedDate";
 import { handleServerError, sendResponse } from "../helper/response";
 import { AuthenticatedRequest } from "../middleware/auth";
 import Contract from "../models/Contract";
 import User from "../models/User";
-import { mailRegister } from "../utils/mailUtils";
 
 export const createContract = async (req: AuthenticatedRequest, res) => {
   try {
     const { supplyVendor, cableDrumCount, cableDelivered, expireAt } = req.body;
-    if (req.user.userType !== "admin") {
-      return sendResponse(
-        res,
-        400,
-        "You do not have permission to create a contract"
-      );
-    }
-    const IsSupplyVendor = await User.findById(supplyVendor).select("userType");
 
-    if (!IsSupplyVendor && IsSupplyVendor?.userType !== "supplyVendor") {
-      return sendResponse(res, 400, "Supply Vendor not found");
-    }
-
-    const newContract = new Contract({
+    const newContract = await new Contract({
       supplyVendor,
       cableDrumCount,
       cableDelivered,
       expireAt,
-    });
-    const contract = newContract.save();
-    if (!contract) {
+    }).save();
+
+    if (!newContract) {
       return sendResponse(res, 400, "Internal Server Error");
     }
 
@@ -39,35 +27,6 @@ export const createContract = async (req: AuthenticatedRequest, res) => {
     return handleServerError(res, err);
   }
 };
-
-// export const getAllContracts = async (req, res) => {
-//   try {
-//     const contracts = await Contract.find();
-//     const modifiedData = contracts.map(
-//       ({
-//         _id,
-//         supplyVendor,
-//         cableDrumCount,
-//         cableDelivered,
-//         expireAt,
-//         createAt,
-//       }) => ({
-//         _id,
-//         supplyVendor,
-//         cableDrumCount,
-//         cableDelivered,
-//         expireAt: extractDate(expireAt),
-//         createAt: extractDate(createAt),
-//       })
-//     );
-
-//     // Send modifiedData to the client
-//     console.log(modifiedData);
-//     sendResponse(res, 201, "", modifiedData);
-//   } catch (err) {
-//     return handleServerError(res, err);
-//   }
-// };
 
 export const getAllContracts = async (req, res) => {
   try {
@@ -81,6 +40,7 @@ export const getAllContracts = async (req, res) => {
         supplyVendor,
         cableDrumCount,
         cableDelivered,
+        cableRequired,
         expireAt,
         createAt,
       }) => ({
@@ -88,6 +48,7 @@ export const getAllContracts = async (req, res) => {
         supplyVendor: supplyVendor,
         cableDrumCount,
         cableDelivered,
+        cableRequired,
         expireAt: extractDate(expireAt),
         createAt: extractDate(createAt),
       })
@@ -96,5 +57,24 @@ export const getAllContracts = async (req, res) => {
     sendResponse(res, 201, "Get data successful", modifiedData);
   } catch (err) {
     return handleServerError(res, err);
+  }
+};
+
+export const updateContract = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  const { contractId, cableRequired } = req.body;
+  try {
+    const updateContract = await Contract.findByIdAndUpdate(contractId, {
+      cableRequired,
+    });
+
+    if (!updateContract) {
+      return sendResponse(res, 400, "Cant update contract, try again");
+    }
+    sendResponse(res, 201, "contract update successful");
+  } catch (error) {
+    handleServerError(res, error);
   }
 };

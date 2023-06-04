@@ -24,33 +24,52 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
-const ContractSchema = new mongoose_1.default.Schema({
-    supplyVendor: {
+const OrderSchema = new mongoose_1.Schema({
+    contractId: {
+        type: mongoose_1.Schema.Types.ObjectId,
+        ref: "contracts",
+        required: true,
+    },
+    cableDrumsToWithdraw: {
+        type: Number,
+        required: true,
+    },
+    status: {
+        type: String,
+        enum: [
+            "newRequest",
+            "inPreparation",
+            "readyForPickup",
+            "delivered",
+            "inTransit",
+            "completed",
+        ],
+        default: "newRequest",
+    },
+    supplyVendorId: {
         type: mongoose_1.Schema.Types.ObjectId,
         ref: "users",
         required: true,
     },
-    cableDrumCount: {
-        type: Number,
+    plannerId: {
+        type: mongoose_1.Schema.Types.ObjectId,
+        ref: "users",
         required: true,
     },
-    cableDelivered: {
-        type: Number,
-        default: 0,
+    projectContractorId: {
+        type: mongoose_1.Schema.Types.ObjectId,
+        ref: "users",
+        required: true,
     },
-    cableRequired: {
-        type: Number,
-        default: 0,
-    },
-    expireAt: {
-        type: Date,
-        require: true,
+    notes: {
+        type: [],
+        default: [],
     },
     createAt: {
         type: Date,
         default: Date.now,
     },
 });
-const Contract = mongoose_1.default.model("contracts", ContractSchema);
-exports.default = Contract;
-//# sourceMappingURL=Contract.js.map
+const Order = mongoose_1.default.model("orders", OrderSchema);
+exports.default = Order;
+//# sourceMappingURL=Oder.js.map
