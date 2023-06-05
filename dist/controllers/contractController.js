@@ -19,7 +19,7 @@ const createContract = async (req, res) => {
         if (!newContract) {
             return (0, response_1.sendResponse)(res, 400, "Internal Server Error");
         }
-        global._io.emit("new-Contract", newContract);
+        global._io.emit("new-contract", newContract);
         // mailRegister("Your account has been created", email);
         (0, response_1.sendResponse)(res, 200, "Contract successfully created");
     }

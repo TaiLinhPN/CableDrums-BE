@@ -4,13 +4,14 @@ import { handleServerError, sendResponse } from "../helper/response";
 import Contract, { IContract } from "../models/Contract";
 import Order, { IOrder, Note } from "../models/Oder";
 import { sendMailNewOrder, sendMailUpdateOrder } from "../helper/sendMail";
+import { extractDate, extractDateTime } from "../helper/formattedDate";
 
 export const createOrder = async (req: AuthenticatedRequest, res: Response) => {
   const { contract, projectContractorId, cableDrumsToWithdraw, note } =
     req.body;
   try {
     const newNote: Note = {
-      username: req.user.username,
+      username: `${req.user.username} was created a new order`,
       time: new Date(),
       message: note,
     };
@@ -69,7 +70,7 @@ export const updateOrder = async (req: AuthenticatedRequest, res: Response) => {
 
     order.status = status;
     const newNote: Note = {
-      username: req.user.username,
+      username:`${req.user.username} was updated status to ${status}`,
       time: new Date(),
       message: note,
     };
@@ -86,6 +87,51 @@ export const updateOrder = async (req: AuthenticatedRequest, res: Response) => {
     sendMailUpdateOrder(order.supplyVendorId.toString(), order.status);
     sendMailUpdateOrder(order.projectContractorId.toString(), order.status);
     sendMailUpdateOrder(order.plannerId.toString(), order.status);
+  } catch (error) {
+    handleServerError(res, error);
+  }
+};
+
+export const getAllOrders = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  const user = req.user;
+  let conditions = {};
+
+  if (user.userType === "projectContractor") {
+    conditions = { projectContractorId: user.userId };
+  }
+
+  try {
+    const orders = await Order.find(conditions)
+      .populate("supplyVendorId", "username")
+      .populate("plannerId", "username")
+      .populate("projectContractorId", "username")
+      .select("-__v");
+
+    const result = orders.map((order) => ({
+        supplyVendor: order.supplyVendorId,
+        planner: order.plannerId,
+        projectContractor: order.projectContractorId,
+        _id: order._id,
+        contractId: order.contractId,
+        cableDrumsToWithdraw: order.cableDrumsToWithdraw,
+        status: order.status,
+        notes: order.notes.map((note) => ({
+          username: note.username,
+          time: extractDateTime(note.time),
+          message: note.message || undefined,
+        }
+        )),
+        createdAt: extractDate(order.createAt),
+    }));
+
+    if (!orders) {
+      return sendResponse(res, 500, "Internal Server Error");
+    }
+
+    sendResponse(res, 201, "Get order successful", result);
   } catch (error) {
     handleServerError(res, error);
   }

@@ -1,8 +1,11 @@
 import { sendMail } from "../config/mailConfig";
 import User from "../models/User";
 
-
-export const sendMailNewOrder = async (userId: string, cableRequired: number,  orderId?: string,) => {
+export const sendMailNewOrder = async (
+  userId: string,
+  cableRequired: number,
+  orderId?: string
+) => {
   const email = await findEmail(userId);
   if (email) {
     const content = `The request to unplug the cable has been made, and the required amount of cable drums ${cableRequired}. Please prepare the required number of cable drums. See details at: Link`;

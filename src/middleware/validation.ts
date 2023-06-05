@@ -113,7 +113,6 @@ export const createOrderValidation = async (
   }
 };
 
-
 export const updateOrderValidation = async (
   req: AuthenticatedRequest,
   res: Response,
@@ -142,10 +141,9 @@ export const updateOrderValidation = async (
         order.projectContractorId.toString() === userId)
     ) {
       if (
-        (order.status === "newRequest" && status === "inPreparation") ||
-        (order.status === "inPreparation" && status === "readyForPickup") ||
+        (order.status === "newRequest" && status === "readyForPickup") ||
         (order.status === "readyForPickup" && status === "completed")
-        
+
         // ( order.status === "newRequest" && status === "inPreparation"  ) ||
         // (order.status === "inPreparation" && status === "readyForPickup") ||
         // (order.status === "readyForPickup" && status === "delivered") ||

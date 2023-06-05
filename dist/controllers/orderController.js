@@ -3,16 +3,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateOrder = exports.createOrder = void 0;
+exports.getAllOrders = exports.updateOrder = exports.createOrder = void 0;
 const response_1 = require("../helper/response");
 const Contract_1 = __importDefault(require("../models/Contract"));
 const Oder_1 = __importDefault(require("../models/Oder"));
 const sendMail_1 = require("../helper/sendMail");
+const formattedDate_1 = require("../helper/formattedDate");
 const createOrder = async (req, res) => {
     const { contract, projectContractorId, cableDrumsToWithdraw, note } = req.body;
     try {
         const newNote = {
-            username: req.user.username,
+            username: `${req.user.username} was created a new order`,
             time: new Date(),
             message: note,
         };
@@ -53,7 +54,7 @@ const updateOrder = async (req, res) => {
         }
         order.status = status;
         const newNote = {
-            username: req.user.username,
+            username: `${req.user.username} was updated status to ${status}`,
             time: new Date(),
             message: note,
         };
@@ -73,6 +74,43 @@ const updateOrder = async (req, res) => {
     }
 };
 exports.updateOrder = updateOrder;
+const getAllOrders = async (req, res) => {
+    const user = req.user;
+    let conditions = {};
+    if (user.userType === "projectContractor") {
+        conditions = { projectContractorId: user.userId };
+    }
+    try {
+        const orders = await Oder_1.default.find(conditions)
+            .populate("supplyVendorId", "username")
+            .populate("plannerId", "username")
+            .populate("projectContractorId", "username")
+            .select("-__v");
+        const result = orders.map((order) => ({
+            supplyVendor: order.supplyVendorId,
+            planner: order.plannerId,
+            projectContractor: order.projectContractorId,
+            _id: order._id,
+            contractId: order.contractId,
+            cableDrumsToWithdraw: order.cableDrumsToWithdraw,
+            status: order.status,
+            notes: order.notes.map((note) => ({
+                username: note.username,
+                time: (0, formattedDate_1.extractDateTime)(note.time),
+                message: note.message || undefined,
+            })),
+            createdAt: (0, formattedDate_1.extractDate)(order.createAt),
+        }));
+        if (!orders) {
+            return (0, response_1.sendResponse)(res, 500, "Internal Server Error");
+        }
+        (0, response_1.sendResponse)(res, 201, "Get order successful", result);
+    }
+    catch (error) {
+        (0, response_1.handleServerError)(res, error);
+    }
+};
+exports.getAllOrders = getAllOrders;
 const updateContractOnOrderCompletion = async (order) => {
     const contract = await Contract_1.default.findById(order.contractId);
     if (!contract) {

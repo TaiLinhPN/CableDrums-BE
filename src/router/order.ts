@@ -1,9 +1,12 @@
 import express from "express";
 
 import { verifyToken } from "../middleware/auth";
-import { createOrder, updateOrder } from "../controllers/orderController";
+import { createOrder, getAllOrders, updateOrder } from "../controllers/orderController";
 import { updateDataRequest } from "../middleware/updateDataRequest";
-import { createOrderValidation, updateOrderValidation } from "../middleware/validation";
+import {
+  createOrderValidation,
+  updateOrderValidation,
+} from "../middleware/validation";
 
 const router = express.Router();
 
@@ -25,6 +28,13 @@ router.post(
   updateDataRequest,
   updateOrderValidation,
   updateOrder
+);
+
+router.get(
+  "/get-all",
+  verifyToken,
+  updateDataRequest,
+  getAllOrders
 );
 
 export default router;

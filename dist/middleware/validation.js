@@ -96,8 +96,7 @@ const updateOrderValidation = async (req, res, next) => {
             order.supplyVendorId.toString() === userId) ||
             (userType === "projectContractor" &&
                 order.projectContractorId.toString() === userId)) {
-            if ((order.status === "newRequest" && status === "inPreparation") ||
-                (order.status === "inPreparation" && status === "readyForPickup") ||
+            if ((order.status === "newRequest" && status === "readyForPickup") ||
                 (order.status === "readyForPickup" && status === "completed")
             // ( order.status === "newRequest" && status === "inPreparation"  ) ||
             // (order.status === "inPreparation" && status === "readyForPickup") ||

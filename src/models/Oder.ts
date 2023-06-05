@@ -16,7 +16,7 @@ export interface IOrder extends Document {
   notes: Note[];
   createAt?: Date;
 }
-export type Note = { username: string, time: Date, message: string }
+export type Note = { username: string; time: Date; message: string };
 
 const OrderSchema = new Schema<IOrder>({
   contractId: {
