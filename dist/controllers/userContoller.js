@@ -18,7 +18,7 @@ const findUser = async (req, res) => {
                 { username: { $regex: searchString, $options: "i" } },
             ],
         }, "_id username email avatar");
-        res.json(users);
+        (0, response_1.sendResponse)(res, 201, "get user successful", users);
     }
     catch (error) {
         console.error(error);
@@ -29,11 +29,13 @@ exports.findUser = findUser;
 const getUsers = async (req, res) => {
     try {
         const users = await User_1.default.find().select("_id username email userType");
-        res.json(users);
+        if (!users) {
+            (0, response_1.sendResponse)(res, 500, "Server Error");
+        }
+        (0, response_1.sendResponse)(res, 201, "get all users successfully", users);
     }
     catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Server Error" });
+        (0, response_1.handleServerError)(res, error);
     }
 };
 exports.getUsers = getUsers;

@@ -18,7 +18,7 @@ export const findUser = async (req, res) => {
       "_id username email avatar"
     );
 
-    res.json(users);
+    sendResponse(res, 201, "get user successful", users);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server Error" });
@@ -28,10 +28,12 @@ export const findUser = async (req, res) => {
 export const getUsers = async (req, res) => {
   try {
     const users = await User.find().select("_id username email userType");
-    res.json(users);
+    if (!users) {
+      sendResponse(res, 500, "Server Error");
+    }
+    sendResponse(res, 201, "get all users successfully", users);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server Error" });
+    handleServerError(res, error);
   }
 };
 

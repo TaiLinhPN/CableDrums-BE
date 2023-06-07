@@ -4,6 +4,7 @@ import { handleServerError, sendResponse } from "../helper/response";
 import { AuthenticatedRequest } from "../middleware/auth";
 import Contract from "../models/Contract";
 import User from "../models/User";
+import { formatContractData } from "../helper/formattedData";
 
 export const createContract = async (req: AuthenticatedRequest, res) => {
   try {
@@ -19,8 +20,12 @@ export const createContract = async (req: AuthenticatedRequest, res) => {
     if (!newContract) {
       return sendResponse(res, 400, "Internal Server Error");
     }
-
-    global._io.emit("new-contract", newContract);
+    const contractsData = await Contract.findById(newContract._id).populate(
+      "supplyVendor",
+      "username"
+    );
+const modifiedData = formatContractData([contractsData]);
+    global._io.emit("new-contract", modifiedData[0]);
     // mailRegister("Your account has been created", email);
     sendResponse(res, 200, "Contract successfully created");
   } catch (err) {
@@ -34,25 +39,7 @@ export const getAllContracts = async (req, res) => {
       "supplyVendor",
       "username"
     );
-    const modifiedData = contracts.map(
-      ({
-        _id,
-        supplyVendor,
-        cableDrumCount,
-        cableDelivered,
-        cableRequired,
-        expireAt,
-        createAt,
-      }) => ({
-        _id,
-        supplyVendor: supplyVendor,
-        cableDrumCount,
-        cableDelivered,
-        cableRequired,
-        expireAt: extractDate(expireAt),
-        createAt: extractDate(createAt),
-      })
-    );
+    const modifiedData = formatContractData(contracts);
 
     sendResponse(res, 201, "Get data successful", modifiedData);
   } catch (err) {

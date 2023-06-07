@@ -8,7 +8,7 @@ const response_1 = require("../helper/response");
 const Contract_1 = __importDefault(require("../models/Contract"));
 const Oder_1 = __importDefault(require("../models/Oder"));
 const sendMail_1 = require("../helper/sendMail");
-const formattedDate_1 = require("../helper/formattedDate");
+const formattedData_1 = require("../helper/formattedData");
 const createOrder = async (req, res) => {
     const { contract, projectContractorId, cableDrumsToWithdraw, note } = req.body;
     try {
@@ -29,12 +29,19 @@ const createOrder = async (req, res) => {
             return (0, response_1.sendResponse)(res, 500, "Internal server error");
         }
         // code update contract
-        const updatedContract = await Contract_1.default.findByIdAndUpdate(contract._id, { cableRequired: cableDrumsToWithdraw }, { new: true });
+        const updatedContract = await Contract_1.default.findByIdAndUpdate(contract._id, { $inc: { cableRequired: cableDrumsToWithdraw } }, { new: true });
         if (!updatedContract) {
             return (0, response_1.sendResponse)(res, 400, "Can't update contract, try again");
         }
-        global._io.emit("update-contract", updatedContract);
-        global._io.emit("new-order", newOrder);
+        global._io.emit("update-contract-new-order", updatedContract);
+        // format data to sent to client
+        const order = await Oder_1.default.findById(newOrder._id)
+            .populate("supplyVendorId", "username")
+            .populate("plannerId", "username")
+            .populate("projectContractorId", "username")
+            .select("-__v");
+        const result = (0, formattedData_1.formatDataOrder)([order]);
+        global._io.emit("new-order", result[0]);
         (0, response_1.sendResponse)(res, 201, "Create new order successful", newOrder);
         (0, sendMail_1.sendMailNewOrder)(newOrder.supplyVendorId.toString(), newOrder.cableDrumsToWithdraw);
         (0, sendMail_1.sendMailNewOrder)(newOrder.projectContractorId.toString(), newOrder.cableDrumsToWithdraw);
@@ -86,24 +93,10 @@ const getAllOrders = async (req, res) => {
             .populate("plannerId", "username")
             .populate("projectContractorId", "username")
             .select("-__v");
-        const result = orders.map((order) => ({
-            supplyVendor: order.supplyVendorId,
-            planner: order.plannerId,
-            projectContractor: order.projectContractorId,
-            _id: order._id,
-            contractId: order.contractId,
-            cableDrumsToWithdraw: order.cableDrumsToWithdraw,
-            status: order.status,
-            notes: order.notes.map((note) => ({
-                username: note.username,
-                time: (0, formattedDate_1.extractDateTime)(note.time),
-                message: note.message || undefined,
-            })),
-            createdAt: (0, formattedDate_1.extractDate)(order.createAt),
-        }));
         if (!orders) {
             return (0, response_1.sendResponse)(res, 500, "Internal Server Error");
         }
+        const result = (0, formattedData_1.formatDataOrder)(orders);
         (0, response_1.sendResponse)(res, 201, "Get order successful", result);
     }
     catch (error) {

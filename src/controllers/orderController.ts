@@ -4,7 +4,7 @@ import { handleServerError, sendResponse } from "../helper/response";
 import Contract, { IContract } from "../models/Contract";
 import Order, { IOrder, Note } from "../models/Oder";
 import { sendMailNewOrder, sendMailUpdateOrder } from "../helper/sendMail";
-import { extractDate, extractDateTime } from "../helper/formattedDate";
+import { formatDataOrder } from "../helper/formattedData";
 
 export const createOrder = async (req: AuthenticatedRequest, res: Response) => {
   const { contract, projectContractorId, cableDrumsToWithdraw, note } =
@@ -32,16 +32,25 @@ export const createOrder = async (req: AuthenticatedRequest, res: Response) => {
     // code update contract
     const updatedContract = await Contract.findByIdAndUpdate(
       contract._id,
-      { cableRequired: cableDrumsToWithdraw },
+      { $inc: { cableRequired: cableDrumsToWithdraw } },
       { new: true }
     );
 
     if (!updatedContract) {
       return sendResponse(res, 400, "Can't update contract, try again");
     }
+    global._io.emit("update-contract-new-order", updatedContract);
 
-    global._io.emit("update-contract", updatedContract);
-    global._io.emit("new-order", newOrder);
+    // format data to sent to client
+    const order = await Order.findById(newOrder._id)
+      .populate("supplyVendorId", "username")
+      .populate("plannerId", "username")
+      .populate("projectContractorId", "username")
+      .select("-__v");
+
+    const result = formatDataOrder([order]);
+
+    global._io.emit("new-order", result[0]);
 
     sendResponse(res, 201, "Create new order successful", newOrder);
 
@@ -70,7 +79,7 @@ export const updateOrder = async (req: AuthenticatedRequest, res: Response) => {
 
     order.status = status;
     const newNote: Note = {
-      username:`${req.user.username} was updated status to ${status}`,
+      username: `${req.user.username} was updated status to ${status}`,
       time: new Date(),
       message: note,
     };
@@ -109,28 +118,10 @@ export const getAllOrders = async (
       .populate("plannerId", "username")
       .populate("projectContractorId", "username")
       .select("-__v");
-
-    const result = orders.map((order) => ({
-        supplyVendor: order.supplyVendorId,
-        planner: order.plannerId,
-        projectContractor: order.projectContractorId,
-        _id: order._id,
-        contractId: order.contractId,
-        cableDrumsToWithdraw: order.cableDrumsToWithdraw,
-        status: order.status,
-        notes: order.notes.map((note) => ({
-          username: note.username,
-          time: extractDateTime(note.time),
-          message: note.message || undefined,
-        }
-        )),
-        createdAt: extractDate(order.createAt),
-    }));
-
     if (!orders) {
       return sendResponse(res, 500, "Internal Server Error");
     }
-
+    const result = formatDataOrder(orders);
     sendResponse(res, 201, "Get order successful", result);
   } catch (error) {
     handleServerError(res, error);

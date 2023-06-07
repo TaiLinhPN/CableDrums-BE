@@ -4,9 +4,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.updateContract = exports.getAllContracts = exports.createContract = void 0;
-const formattedDate_1 = require("../helper/formattedDate");
 const response_1 = require("../helper/response");
 const Contract_1 = __importDefault(require("../models/Contract"));
+const formattedData_1 = require("../helper/formattedData");
 const createContract = async (req, res) => {
     try {
         const { supplyVendor, cableDrumCount, cableDelivered, expireAt } = req.body;
@@ -19,7 +19,9 @@ const createContract = async (req, res) => {
         if (!newContract) {
             return (0, response_1.sendResponse)(res, 400, "Internal Server Error");
         }
-        global._io.emit("new-contract", newContract);
+        const contractsData = await Contract_1.default.findById(newContract._id).populate("supplyVendor", "username");
+        const modifiedData = (0, formattedData_1.formatContractData)([contractsData]);
+        global._io.emit("new-contract", modifiedData[0]);
         // mailRegister("Your account has been created", email);
         (0, response_1.sendResponse)(res, 200, "Contract successfully created");
     }
@@ -31,15 +33,7 @@ exports.createContract = createContract;
 const getAllContracts = async (req, res) => {
     try {
         const contracts = await Contract_1.default.find().populate("supplyVendor", "username");
-        const modifiedData = contracts.map(({ _id, supplyVendor, cableDrumCount, cableDelivered, cableRequired, expireAt, createAt, }) => ({
-            _id,
-            supplyVendor: supplyVendor,
-            cableDrumCount,
-            cableDelivered,
-            cableRequired,
-            expireAt: (0, formattedDate_1.extractDate)(expireAt),
-            createAt: (0, formattedDate_1.extractDate)(createAt),
-        }));
+        const modifiedData = (0, formattedData_1.formatContractData)(contracts);
         (0, response_1.sendResponse)(res, 201, "Get data successful", modifiedData);
     }
     catch (err) {
