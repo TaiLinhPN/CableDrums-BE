@@ -66,12 +66,19 @@ const updateOrder = async (req, res) => {
             message: note,
         };
         order.notes.push(newNote);
-        const updatedOrder = await order.save();
+        await order.save();
         if (status === "completed") {
             await updateContractOnOrderCompletion(order);
         }
-        global._io.emit("order-updated", updatedOrder);
-        (0, response_1.sendResponse)(res, 200, "Order updated successfully", updatedOrder);
+        // format data to sent to client
+        const orderData = await Oder_1.default.findById(orderId)
+            .populate("supplyVendorId", "username")
+            .populate("plannerId", "username")
+            .populate("projectContractorId", "username")
+            .select("-__v");
+        const result = (0, formattedData_1.formatDataOrder)([orderData]);
+        global._io.emit("update-order", result[0]);
+        (0, response_1.sendResponse)(res, 200, "Order updated successfully");
         (0, sendMail_1.sendMailUpdateOrder)(order.supplyVendorId.toString(), order.status);
         (0, sendMail_1.sendMailUpdateOrder)(order.projectContractorId.toString(), order.status);
         (0, sendMail_1.sendMailUpdateOrder)(order.plannerId.toString(), order.status);
@@ -86,6 +93,9 @@ const getAllOrders = async (req, res) => {
     let conditions = {};
     if (user.userType === "projectContractor") {
         conditions = { projectContractorId: user.userId };
+    }
+    else if (user.userType === "supplyVendor") {
+        conditions = { supplyVendorId: user.userId };
     }
     try {
         const orders = await Oder_1.default.find(conditions)
@@ -110,11 +120,11 @@ const updateContractOnOrderCompletion = async (order) => {
         throw new Error("Contract not found");
     }
     const updatedContract = await updateContractWithDeliveredCable(contract, order.cableDrumsToWithdraw);
-    global._io.emit("update-contract", updatedContract);
+    global._io.emit("update-contract-complete-order", updatedContract);
 };
 const updateContractWithDeliveredCable = async (contract, cableDrumsToWithdraw) => {
     const updatedContract = await Contract_1.default.findByIdAndUpdate(contract._id, {
-        cableRequired: 0,
+        cableRequired: contract.cableRequired - cableDrumsToWithdraw,
         cableDelivered: contract.cableDelivered + cableDrumsToWithdraw,
     }, { new: true });
     if (!updatedContract) {

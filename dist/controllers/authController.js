@@ -51,7 +51,7 @@ const resetPassword = async (req, res) => {
         const newPassword = await User_1.default.findOneAndUpdate({ email: email }, { password: passwordHashed });
         console.log("what", newPassword);
         if (!newPassword) {
-            return (0, response_1.sendResponse)(res, 404, "Update password unsuccessfully, try again");
+            return (0, response_1.sendResponse)(res, 404, "Email not found");
         }
         (0, response_1.sendResponse)(res, 200, "Update password successfully");
     }

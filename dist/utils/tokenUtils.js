@@ -33,7 +33,7 @@ const dotenv = __importStar(require("dotenv"));
 dotenv.config();
 const generateToken = (payload) => {
     const accessToken = jsonwebtoken_1.default.sign({ userId: payload }, process.env.ACCESS_TOKEN_SECRET, {
-        expiresIn: "1h",
+        expiresIn: "1d",
     });
     const refreshToken = jsonwebtoken_1.default.sign({ userId: payload }, process.env.REFRESH_TOKEN_SECRET, {
         expiresIn: "1d",

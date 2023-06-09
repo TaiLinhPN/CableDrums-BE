@@ -54,11 +54,7 @@ export const resetPassword = async (req: Request, res: Response) => {
     console.log("what", newPassword);
 
     if (!newPassword) {
-      return sendResponse(
-        res,
-        404,
-        "Update password unsuccessfully, try again"
-      );
+      return sendResponse(res, 404, "Email not found");
     }
     sendResponse(res, 200, "Update password successfully");
   } catch (error) {

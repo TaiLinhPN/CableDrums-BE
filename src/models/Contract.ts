@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document, Model, ObjectId } from "mongoose";
 
 export interface IContract extends Document {
+  planner: ObjectId;
   supplyVendor: ObjectId;
   cableDrumCount: Number;
   cableDelivered: Number;

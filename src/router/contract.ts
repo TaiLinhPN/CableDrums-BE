@@ -13,6 +13,6 @@ const router = express.Router();
 // @access Public
 
 router.post("/create", verifyToken, updateDataRequest, createContract);
-router.get("/get-all", verifyToken, getAllContracts);
+router.get("/get-all", verifyToken, updateDataRequest, getAllContracts);
 
 export default router;

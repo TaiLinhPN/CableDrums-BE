@@ -84,14 +84,23 @@ export const updateOrder = async (req: AuthenticatedRequest, res: Response) => {
       message: note,
     };
     order.notes.push(newNote);
-    const updatedOrder = await order.save();
+    await order.save();
 
     if (status === "completed") {
       await updateContractOnOrderCompletion(order);
     }
 
-    global._io.emit("order-updated", updatedOrder);
-    sendResponse(res, 200, "Order updated successfully", updatedOrder);
+    // format data to sent to client
+    const orderData = await Order.findById(orderId)
+      .populate("supplyVendorId", "username")
+      .populate("plannerId", "username")
+      .populate("projectContractorId", "username")
+      .select("-__v");
+
+    const result = formatDataOrder([orderData]);
+
+    global._io.emit("update-order", result[0]);
+    sendResponse(res, 200, "Order updated successfully");
 
     sendMailUpdateOrder(order.supplyVendorId.toString(), order.status);
     sendMailUpdateOrder(order.projectContractorId.toString(), order.status);
@@ -110,8 +119,9 @@ export const getAllOrders = async (
 
   if (user.userType === "projectContractor") {
     conditions = { projectContractorId: user.userId };
+  } else if (user.userType === "supplyVendor") {
+    conditions = { supplyVendorId: user.userId };
   }
-
   try {
     const orders = await Order.find(conditions)
       .populate("supplyVendorId", "username")
@@ -139,7 +149,7 @@ const updateContractOnOrderCompletion = async (order: IOrder) => {
     order.cableDrumsToWithdraw as number
   );
 
-  global._io.emit("update-contract", updatedContract);
+  global._io.emit("update-contract-complete-order", updatedContract);
 };
 
 const updateContractWithDeliveredCable = async (
@@ -149,7 +159,7 @@ const updateContractWithDeliveredCable = async (
   const updatedContract = await Contract.findByIdAndUpdate(
     contract._id,
     {
-      cableRequired: 0,
+      cableRequired: (contract.cableRequired as number) - cableDrumsToWithdraw,
       cableDelivered:
         (contract.cableDelivered as number) + cableDrumsToWithdraw,
     },

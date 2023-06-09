@@ -20,6 +20,7 @@ const createContract = async (req, res) => {
             return (0, response_1.sendResponse)(res, 400, "Internal Server Error");
         }
         const contractsData = await Contract_1.default.findById(newContract._id).populate("supplyVendor", "username");
+        console.log(contractsData);
         const modifiedData = (0, formattedData_1.formatContractData)([contractsData]);
         global._io.emit("new-contract", modifiedData[0]);
         // mailRegister("Your account has been created", email);
@@ -31,8 +32,18 @@ const createContract = async (req, res) => {
 };
 exports.createContract = createContract;
 const getAllContracts = async (req, res) => {
+    let conditions = {};
+    const user = req.user;
+    console.log(user.userType);
+    if (user.userType === "supplyVendor") {
+        console.log(user.userType);
+        conditions = { supplyVendor: user.userId };
+    }
+    else if (user.userType === "projectContractor") {
+        (0, response_1.sendResponse)(res, 404, "you do not have permission to request");
+    }
     try {
-        const contracts = await Contract_1.default.find().populate("supplyVendor", "username");
+        const contracts = await Contract_1.default.find(conditions).populate("supplyVendor", "username");
         const modifiedData = (0, formattedData_1.formatContractData)(contracts);
         (0, response_1.sendResponse)(res, 201, "Get data successful", modifiedData);
     }

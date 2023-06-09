@@ -24,7 +24,10 @@ export const createContract = async (req: AuthenticatedRequest, res) => {
       "supplyVendor",
       "username"
     );
-const modifiedData = formatContractData([contractsData]);
+
+    console.log(contractsData);
+
+    const modifiedData = formatContractData([contractsData]);
     global._io.emit("new-contract", modifiedData[0]);
     // mailRegister("Your account has been created", email);
     sendResponse(res, 200, "Contract successfully created");
@@ -34,8 +37,18 @@ const modifiedData = formatContractData([contractsData]);
 };
 
 export const getAllContracts = async (req, res) => {
+  let conditions = {};
+  const user = req.user;
+  console.log(user.userType);
+
+  if (user.userType === "supplyVendor") {
+    console.log(user.userType);
+    conditions = { supplyVendor: user.userId };
+  } else if (user.userType === "projectContractor") {
+    sendResponse(res, 404, "you do not have permission to request");
+  }
   try {
-    const contracts = await Contract.find().populate(
+    const contracts = await Contract.find(conditions).populate(
       "supplyVendor",
       "username"
     );

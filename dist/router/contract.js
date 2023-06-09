@@ -12,6 +12,6 @@ const router = express_1.default.Router();
 // @desc Register user
 // @access Public
 router.post("/create", auth_1.verifyToken, updateDataRequest_1.updateDataRequest, contractController_1.createContract);
-router.get("/get-all", auth_1.verifyToken, contractController_1.getAllContracts);
+router.get("/get-all", auth_1.verifyToken, updateDataRequest_1.updateDataRequest, contractController_1.getAllContracts);
 exports.default = router;
 //# sourceMappingURL=contract.js.map
