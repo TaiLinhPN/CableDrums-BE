@@ -8,7 +8,7 @@ export const sendMailNewOrder = async (
 ) => {
   const email = await findEmail(userId);
   if (email) {
-    const content = `The request to unplug the cable has been made, and the required amount of cable drums ${cableRequired}. Please prepare the required number of cable drums. See details at: Link`;
+    const content = `The request to withdraw the cable has been made, and the required amount of cable drums is ${cableRequired}. Please prepare the necessary number of cable drums. You can find more details at the following link: Link.`;
     sendMail(email, `EnergySure-tech`, content);
   }
 };
@@ -20,7 +20,7 @@ export const sendMailUpdateOrder = async (
 ) => {
   const email = await findEmail(userId);
   if (email) {
-    const content = `The request to update the cable has been made, and the stats have been updated to ${status}`;
+    const content = `The request to update the cable has been made, and the status has been updated to be ${status}.`;
     sendMail(email, `EnergySure-tech`, content);
   }
 };
