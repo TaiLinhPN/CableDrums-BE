@@ -16,7 +16,10 @@ export const createOrder = async (req: AuthenticatedRequest, res: Response) => {
       message: note,
     };
 
+    const orders = await Order.find();
+
     const newOrder = await new Order({
+      orderName: `request-${(orders.length + 1).toString().padStart(2, "0")}`,
       plannerId: req.user.userId,
       contractId: contract._id,
       supplyVendorId: contract.supplyVendor,
@@ -43,13 +46,13 @@ export const createOrder = async (req: AuthenticatedRequest, res: Response) => {
 
     // format data to sent to client
     const order = await Order.findById(newOrder._id)
+      .populate("contractId", "contractName")
       .populate("supplyVendorId", "username")
       .populate("plannerId", "username")
       .populate("projectContractorId", "username")
       .select("-__v");
 
     const result = formatDataOrder([order]);
-
     global._io.emit("new-order", result[0]);
 
     sendResponse(res, 201, "Create new order successful", newOrder);
@@ -95,6 +98,7 @@ export const updateOrder = async (req: AuthenticatedRequest, res: Response) => {
       .populate("supplyVendorId", "username")
       .populate("plannerId", "username")
       .populate("projectContractorId", "username")
+      .populate("contractId", "contractName")
       .select("-__v");
 
     const result = formatDataOrder([orderData]);
@@ -127,6 +131,7 @@ export const getAllOrders = async (
       .populate("supplyVendorId", "username")
       .populate("plannerId", "username")
       .populate("projectContractorId", "username")
+      .populate("contractId", "contractName")
       .select("-__v");
     if (!orders) {
       return sendResponse(res, 500, "Internal Server Error");

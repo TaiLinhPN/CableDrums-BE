@@ -1,6 +1,8 @@
+import { string } from "joi";
 import mongoose, { Schema, Document, Model, ObjectId } from "mongoose";
 
 export interface IOrder extends Document {
+  orderName: string;
   contractId: ObjectId;
   plannerId: ObjectId;
   supplyVendorId: ObjectId;
@@ -19,6 +21,10 @@ export interface IOrder extends Document {
 export type Note = { username: string; time: Date; message: string };
 
 const OrderSchema = new Schema<IOrder>({
+  orderName: {
+    type: String,
+    required: true,
+  },
   contractId: {
     type: Schema.Types.ObjectId,
     ref: "contracts",

@@ -9,7 +9,7 @@ const User_1 = __importDefault(require("../models/User"));
 const sendMailNewOrder = async (userId, cableRequired, orderId) => {
     const email = await findEmail(userId);
     if (email) {
-        const content = `The request to unplug the cable has been made, and the required amount of cable drums ${cableRequired}. Please prepare the required number of cable drums. See details at: Link`;
+        const content = `The request to withdraw the cable has been made, and the required amount of cable drums is ${cableRequired}. Please prepare the necessary number of cable drums. You can find more details at the following link: Link.`;
         (0, mailConfig_1.sendMail)(email, `EnergySure-tech`, content);
     }
 };
@@ -17,7 +17,7 @@ exports.sendMailNewOrder = sendMailNewOrder;
 const sendMailUpdateOrder = async (userId, status, orderId) => {
     const email = await findEmail(userId);
     if (email) {
-        const content = `The request to update the cable has been made, and the stats have been updated to ${status}`;
+        const content = `The request to update the cable has been made, and the status has been updated to be ${status}.`;
         (0, mailConfig_1.sendMail)(email, `EnergySure-tech`, content);
     }
 };

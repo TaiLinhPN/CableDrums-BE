@@ -1,7 +1,9 @@
+import { string } from "joi";
 import mongoose, { Schema, Document, Model, ObjectId } from "mongoose";
 
 export interface IContract extends Document {
   planner: ObjectId;
+  contractName: string;
   supplyVendor: ObjectId;
   cableDrumCount: Number;
   cableDelivered: Number;
@@ -11,6 +13,10 @@ export interface IContract extends Document {
 }
 
 const ContractSchema: Schema = new mongoose.Schema({
+  contractName: {
+    type: String,
+    required: true,
+  },
   supplyVendor: {
     type: Schema.Types.ObjectId,
     ref: "users",

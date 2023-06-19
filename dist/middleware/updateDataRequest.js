@@ -25,7 +25,6 @@ const updateDataRequest = async (req, res, next) => {
             userType: user.userType,
             email: user.email,
         };
-        console.log(req.user);
         next();
     }
     catch (error) {

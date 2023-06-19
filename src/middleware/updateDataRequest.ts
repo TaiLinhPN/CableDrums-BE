@@ -33,8 +33,6 @@ export const updateDataRequest = async (
       email: user.email,
     };
 
-    console.log(req.user);
-
     next();
   } catch (error) {
     sendResponse(res, 403, "Invalid access token");

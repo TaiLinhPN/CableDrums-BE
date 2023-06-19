@@ -3,8 +3,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.formatDataOrder = exports.formatContractData = void 0;
 const formattedDate_1 = require("./formattedDate");
 const formatContractData = (data) => {
-    const modifiedData = data.map(({ _id, supplyVendor, cableDrumCount, cableDelivered, cableRequired, expireAt, createAt, }) => ({
+    const modifiedData = data.map(({ _id, contractName, supplyVendor, cableDrumCount, cableDelivered, cableRequired, expireAt, createAt, }) => ({
         _id,
+        contractName,
         supplyVendor: supplyVendor,
         cableDrumCount,
         cableDelivered,
@@ -21,7 +22,8 @@ const formatDataOrder = (orders) => {
         planner: order.plannerId,
         projectContractor: order.projectContractorId,
         _id: order._id,
-        contractId: order.contractId,
+        orderName: order.orderName,
+        contract: order.contractId,
         cableDrumsToWithdraw: order.cableDrumsToWithdraw,
         status: order.status,
         notes: order.notes.map((note) => ({

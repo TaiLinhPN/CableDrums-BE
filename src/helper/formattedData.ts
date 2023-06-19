@@ -4,6 +4,7 @@ export const formatContractData = (data) => {
   const modifiedData = data.map(
     ({
       _id,
+      contractName,
       supplyVendor,
       cableDrumCount,
       cableDelivered,
@@ -12,6 +13,7 @@ export const formatContractData = (data) => {
       createAt,
     }) => ({
       _id,
+      contractName,
       supplyVendor: supplyVendor,
       cableDrumCount,
       cableDelivered,
@@ -19,7 +21,7 @@ export const formatContractData = (data) => {
       expireAt: extractDate(expireAt),
       createAt: extractDate(createAt),
     })
-    );
+  );
     return modifiedData;
 };
 
@@ -29,7 +31,8 @@ export const formatDataOrder = (orders) => {
     planner: order.plannerId,
     projectContractor: order.projectContractorId,
     _id: order._id,
-    contractId: order.contractId,
+    orderName: order.orderName,
+    contract: order.contractId,
     cableDrumsToWithdraw: order.cableDrumsToWithdraw,
     status: order.status,
     notes: order.notes.map((note) => ({

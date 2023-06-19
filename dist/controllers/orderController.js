@@ -17,7 +17,9 @@ const createOrder = async (req, res) => {
             time: new Date(),
             message: note,
         };
+        const orders = await Oder_1.default.find();
         const newOrder = await new Oder_1.default({
+            orderName: `request-${(orders.length + 1).toString().padStart(2, "0")}`,
             plannerId: req.user.userId,
             contractId: contract._id,
             supplyVendorId: contract.supplyVendor,
@@ -36,6 +38,7 @@ const createOrder = async (req, res) => {
         global._io.emit("update-contract-new-order", updatedContract);
         // format data to sent to client
         const order = await Oder_1.default.findById(newOrder._id)
+            .populate("contractId", "contractName")
             .populate("supplyVendorId", "username")
             .populate("plannerId", "username")
             .populate("projectContractorId", "username")
@@ -75,6 +78,7 @@ const updateOrder = async (req, res) => {
             .populate("supplyVendorId", "username")
             .populate("plannerId", "username")
             .populate("projectContractorId", "username")
+            .populate("contractId", "contractName")
             .select("-__v");
         const result = (0, formattedData_1.formatDataOrder)([orderData]);
         global._io.emit("update-order", result[0]);
@@ -102,6 +106,7 @@ const getAllOrders = async (req, res) => {
             .populate("supplyVendorId", "username")
             .populate("plannerId", "username")
             .populate("projectContractorId", "username")
+            .populate("contractId", "contractName")
             .select("-__v");
         if (!orders) {
             return (0, response_1.sendResponse)(res, 500, "Internal Server Error");

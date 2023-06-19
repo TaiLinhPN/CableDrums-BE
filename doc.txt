@@ -2,7 +2,8 @@ http://localhost:4001/api/contract/get-all
 
 http://localhost:4001/api/contract/create
 
-supplyVendor=6472fa1fdb3339975183e258
+contractName=contract-01
+supplyVendor=648a67e7cb07a0aa42c59615
 cableDrumCount=30
 cableDelivered=3
 expireAt=1-31-2024

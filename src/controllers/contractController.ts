@@ -8,9 +8,10 @@ import { formatContractData } from "../helper/formattedData";
 
 export const createContract = async (req: AuthenticatedRequest, res) => {
   try {
-    const { supplyVendor, cableDrumCount, cableDelivered, expireAt } = req.body;
+    const {contractName, supplyVendor, cableDrumCount, cableDelivered, expireAt } = req.body;
 
     const newContract = await new Contract({
+      contractName,
       supplyVendor,
       cableDrumCount,
       cableDelivered,
@@ -25,7 +26,6 @@ export const createContract = async (req: AuthenticatedRequest, res) => {
       "username"
     );
 
-    console.log(contractsData);
 
     const modifiedData = formatContractData([contractsData]);
     global._io.emit("new-contract", modifiedData[0]);

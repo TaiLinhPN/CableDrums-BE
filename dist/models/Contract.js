@@ -25,6 +25,10 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
 const ContractSchema = new mongoose_1.default.Schema({
+    contractName: {
+        type: String,
+        required: true,
+    },
     supplyVendor: {
         type: mongoose_1.Schema.Types.ObjectId,
         ref: "users",

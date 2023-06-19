@@ -9,8 +9,9 @@ const Contract_1 = __importDefault(require("../models/Contract"));
 const formattedData_1 = require("../helper/formattedData");
 const createContract = async (req, res) => {
     try {
-        const { supplyVendor, cableDrumCount, cableDelivered, expireAt } = req.body;
+        const { contractName, supplyVendor, cableDrumCount, cableDelivered, expireAt } = req.body;
         const newContract = await new Contract_1.default({
+            contractName,
             supplyVendor,
             cableDrumCount,
             cableDelivered,
@@ -20,7 +21,6 @@ const createContract = async (req, res) => {
             return (0, response_1.sendResponse)(res, 400, "Internal Server Error");
         }
         const contractsData = await Contract_1.default.findById(newContract._id).populate("supplyVendor", "username");
-        console.log(contractsData);
         const modifiedData = (0, formattedData_1.formatContractData)([contractsData]);
         global._io.emit("new-contract", modifiedData[0]);
         // mailRegister("Your account has been created", email);
