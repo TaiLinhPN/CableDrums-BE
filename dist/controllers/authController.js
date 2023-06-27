@@ -8,6 +8,7 @@ const argon2_1 = __importDefault(require("argon2"));
 const User_1 = __importDefault(require("../models/User"));
 const tokenUtils_1 = require("../utils/tokenUtils");
 const response_1 = require("../helper/response");
+const notification_1 = require("../helper/notification");
 const login = async (req, res) => {
     const { email, password } = req.body;
     try {
@@ -20,7 +21,7 @@ const login = async (req, res) => {
             return (0, response_1.sendResponse)(res, 401, "Incorrect email or password?");
         }
         if (checkDefaultPassword(password)) {
-            return (0, response_1.sendResponse)(res, 400, "password defaults, reset password");
+            (0, notification_1.sendNotification)("649a536ecbdff6ac1b9ab12e", user._id, `you are using the default password, please reset the password`);
         }
         const token = (0, tokenUtils_1.generateToken)(user._id);
         const publicUser = {
@@ -61,7 +62,7 @@ const resetPassword = async (req, res) => {
 };
 exports.resetPassword = resetPassword;
 const checkDefaultPassword = (password) => {
-    if (password === "qwert@123!") {
+    if (password === "qwert@123") {
         return true;
     }
     else

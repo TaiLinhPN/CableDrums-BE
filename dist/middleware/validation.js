@@ -34,7 +34,7 @@ exports.userCreateValidation = userCreateValidation;
 const userLoginValidation = (req, res, next) => {
     const validation = userValidationSchema_1.loginSchema.validate(req.body);
     if (validation.error) {
-        return res.status(400).json({
+        return res.status(401).json({
             errors: validation.error.details[0].path[0] + " is not a valid",
         });
     }

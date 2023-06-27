@@ -1,8 +1,8 @@
 import { handleServerError, sendResponse } from "../helper/response";
-import { AuthenticatedRequest } from "../middleware/auth";
 import User from "../models/User";
 import { mailRegister } from "../helper/sendMail";
 import argon2 from "argon2";
+import { sendNotification } from "../helper/notification";
 
 export const findUser = async (req, res) => {
   const { query } = req.body;
@@ -59,9 +59,10 @@ export const removeUser = async (req, res) => {
 };
 
 export const createUser = async (req, res) => {
+  const senderId = req.user.userId
   const { username, email, userType } = req.body;
   try {
-    const password = await argon2.hash("qwert@123!");
+    const password = await argon2.hash("qwert@123");
     const newUser = new User({
       username,
       email,
@@ -76,6 +77,7 @@ export const createUser = async (req, res) => {
       userType: newUser.userType,
     };
     global._io.emit("new-account", publicUser);
+    sendNotification(senderId, publicUser._id, `Your account has been created`);
     mailRegister("Your account has been created", email);
     sendResponse(res, 200, "user successfully created");
   } catch (err) {

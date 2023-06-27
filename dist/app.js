@@ -16,6 +16,7 @@ const auth_1 = __importDefault(require("./router/auth"));
 const user_1 = __importDefault(require("./router/user"));
 const contract_1 = __importDefault(require("./router/contract"));
 const order_1 = __importDefault(require("./router/order"));
+const notification_1 = __importDefault(require("./router/notification"));
 const PORT = 4001;
 mongoose_1.default.set("strictQuery", false);
 (0, db_1.default)();
@@ -41,6 +42,7 @@ app.use("/api/auth", auth_1.default);
 app.use("/api/user", user_1.default);
 app.use("/api/contract", contract_1.default);
 app.use("/api/order", order_1.default);
+app.use("/api/notification", notification_1.default);
 app.listen(PORT, () => {
     console.log("love u");
     return console.log(`Express is listening at http://localhost:${PORT}`);

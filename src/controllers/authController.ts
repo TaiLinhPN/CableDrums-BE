@@ -3,6 +3,7 @@ import argon2 from "argon2";
 import User from "../models/User";
 import { generateToken } from "../utils/tokenUtils";
 import { handleServerError, sendResponse } from "../helper/response";
+import { sendNotification } from "../helper/notification";
 
 export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
@@ -15,10 +16,15 @@ export const login = async (req: Request, res: Response) => {
     if (!isMatch) {
       return sendResponse(res, 401, "Incorrect email or password?");
     }
-    if (checkDefaultPassword(password)) {
-      return sendResponse(res, 400, "password defaults, reset password");
-    }
 
+    if (checkDefaultPassword(password)) {
+      sendNotification(
+        "649a536ecbdff6ac1b9ab12e",
+        user._id,
+        `you are using the default password, please reset the password`
+      );
+    }
+    
     const token = generateToken(user._id);
     const publicUser = {
       _id: user._id,
@@ -63,7 +69,7 @@ export const resetPassword = async (req: Request, res: Response) => {
 };
 
 const checkDefaultPassword = (password: string) => {
-  if (password === "qwert@123!") {
+  if (password === "qwert@123") {
     return true;
   } else return false;
 };

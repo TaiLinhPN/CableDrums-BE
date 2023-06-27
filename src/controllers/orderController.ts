@@ -5,6 +5,7 @@ import Contract, { IContract } from "../models/Contract";
 import Order, { IOrder, Note } from "../models/Oder";
 import { sendMailNewOrder, sendMailUpdateOrder } from "../helper/sendMail";
 import { formatDataOrder } from "../helper/formattedData";
+import { sendNotification } from "../helper/notification";
 
 export const createOrder = async (req: AuthenticatedRequest, res: Response) => {
   const { contract, projectContractorId, cableDrumsToWithdraw, note } =
@@ -57,6 +58,17 @@ export const createOrder = async (req: AuthenticatedRequest, res: Response) => {
 
     sendResponse(res, 201, "Create new order successful", newOrder);
 
+    sendNotification(
+      req.user.userId,
+      newOrder.supplyVendorId.toString(),
+      `Cable withdrawal requested, drums needed: ${newOrder.cableDrumsToWithdraw}`
+    );
+
+    sendNotification(
+      req.user.userId,
+      newOrder.projectContractorId.toString(),
+      `Cable withdrawal requested, drums needed: ${newOrder.cableDrumsToWithdraw}`
+    );
     sendMailNewOrder(
       newOrder.supplyVendorId.toString(),
       newOrder.cableDrumsToWithdraw
@@ -105,6 +117,41 @@ export const updateOrder = async (req: AuthenticatedRequest, res: Response) => {
 
     global._io.emit("update-order", result[0]);
     sendResponse(res, 200, "Order updated successfully");
+
+    if (order.status === "newRequest") {
+      sendNotification(
+        req.user.userId,
+        order.supplyVendorId.toString(),
+        `${orderData.orderName} updated, status: ${order.status}`
+      );
+      sendNotification(
+        req.user.userId,
+        order.projectContractorId.toString(),
+        `${orderData.orderName} updated, status: ${order.status}`
+      );
+    } else if (order.status === "readyForPickup") {
+      sendNotification(
+        req.user.userId,
+        order.projectContractorId.toString(),
+        `${orderData.orderName} updated, status: ${order.status}`
+      );
+      sendNotification(
+        req.user.userId,
+        order.plannerId.toString(),
+        `${orderData.orderName} updated, status: ${order.status}`
+      );
+    } else {
+      sendNotification(
+        req.user.userId,
+        order.plannerId.toString(),
+        `${orderData.orderName} updated, status: ${order.status}`
+      );
+      sendNotification(
+        req.user.userId,
+        order.supplyVendorId.toString(),
+        `${orderData.orderName} updated, status: ${order.status}`
+      );
+    }
 
     sendMailUpdateOrder(order.supplyVendorId.toString(), order.status);
     sendMailUpdateOrder(order.projectContractorId.toString(), order.status);

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.formatDataOrder = exports.formatContractData = void 0;
+exports.formatDataNotification = exports.formatDataOrder = exports.formatContractData = void 0;
 const formattedDate_1 = require("./formattedDate");
 const formatContractData = (data) => {
     const modifiedData = data.map(({ _id, contractName, supplyVendor, cableDrumCount, cableDelivered, cableRequired, expireAt, createAt, }) => ({
@@ -36,4 +36,18 @@ const formatDataOrder = (orders) => {
     return result;
 };
 exports.formatDataOrder = formatDataOrder;
+const formatDataNotification = (notifications) => {
+    const result = notifications.map((notification) => ({
+        _id: notification._id,
+        sender: notification.senderId,
+        userId: notification.userId,
+        content: notification.content,
+        link: notification.link,
+        isRead: notification.isRead,
+        isDeleted: notification.isDeleted,
+        createdAt: (0, formattedDate_1.extractDate)(notification.createAt),
+    }));
+    return result;
+};
+exports.formatDataNotification = formatDataNotification;
 //# sourceMappingURL=formattedData.js.map

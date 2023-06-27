@@ -8,6 +8,7 @@ const response_1 = require("../helper/response");
 const User_1 = __importDefault(require("../models/User"));
 const sendMail_1 = require("../helper/sendMail");
 const argon2_1 = __importDefault(require("argon2"));
+const notification_1 = require("../helper/notification");
 const findUser = async (req, res) => {
     const { query } = req.body;
     const searchString = String(query);
@@ -58,9 +59,10 @@ const removeUser = async (req, res) => {
 };
 exports.removeUser = removeUser;
 const createUser = async (req, res) => {
+    const senderId = req.user.userId;
     const { username, email, userType } = req.body;
     try {
-        const password = await argon2_1.default.hash("qwert@123!");
+        const password = await argon2_1.default.hash("qwert@123");
         const newUser = new User_1.default({
             username,
             email,
@@ -75,6 +77,7 @@ const createUser = async (req, res) => {
             userType: newUser.userType,
         };
         global._io.emit("new-account", publicUser);
+        (0, notification_1.sendNotification)(senderId, publicUser._id, `Your account has been created`);
         (0, sendMail_1.mailRegister)("Your account has been created", email);
         (0, response_1.sendResponse)(res, 200, "user successfully created");
     }

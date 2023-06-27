@@ -9,6 +9,7 @@ const Contract_1 = __importDefault(require("../models/Contract"));
 const Oder_1 = __importDefault(require("../models/Oder"));
 const sendMail_1 = require("../helper/sendMail");
 const formattedData_1 = require("../helper/formattedData");
+const notification_1 = require("../helper/notification");
 const createOrder = async (req, res) => {
     const { contract, projectContractorId, cableDrumsToWithdraw, note } = req.body;
     try {
@@ -46,6 +47,8 @@ const createOrder = async (req, res) => {
         const result = (0, formattedData_1.formatDataOrder)([order]);
         global._io.emit("new-order", result[0]);
         (0, response_1.sendResponse)(res, 201, "Create new order successful", newOrder);
+        (0, notification_1.sendNotification)(req.user.userId, newOrder.supplyVendorId.toString(), `Cable withdrawal requested, drums needed: ${newOrder.cableDrumsToWithdraw}`);
+        (0, notification_1.sendNotification)(req.user.userId, newOrder.projectContractorId.toString(), `Cable withdrawal requested, drums needed: ${newOrder.cableDrumsToWithdraw}`);
         (0, sendMail_1.sendMailNewOrder)(newOrder.supplyVendorId.toString(), newOrder.cableDrumsToWithdraw);
         (0, sendMail_1.sendMailNewOrder)(newOrder.projectContractorId.toString(), newOrder.cableDrumsToWithdraw);
     }
@@ -83,6 +86,18 @@ const updateOrder = async (req, res) => {
         const result = (0, formattedData_1.formatDataOrder)([orderData]);
         global._io.emit("update-order", result[0]);
         (0, response_1.sendResponse)(res, 200, "Order updated successfully");
+        if (order.status === "newRequest") {
+            (0, notification_1.sendNotification)(req.user.userId, order.supplyVendorId.toString(), `${orderData.orderName} updated, status: ${order.status}`);
+            (0, notification_1.sendNotification)(req.user.userId, order.projectContractorId.toString(), `${orderData.orderName} updated, status: ${order.status}`);
+        }
+        else if (order.status === "readyForPickup") {
+            (0, notification_1.sendNotification)(req.user.userId, order.projectContractorId.toString(), `${orderData.orderName} updated, status: ${order.status}`);
+            (0, notification_1.sendNotification)(req.user.userId, order.plannerId.toString(), `${orderData.orderName} updated, status: ${order.status}`);
+        }
+        else {
+            (0, notification_1.sendNotification)(req.user.userId, order.plannerId.toString(), `${orderData.orderName} updated, status: ${order.status}`);
+            (0, notification_1.sendNotification)(req.user.userId, order.supplyVendorId.toString(), `${orderData.orderName} updated, status: ${order.status}`);
+        }
         (0, sendMail_1.sendMailUpdateOrder)(order.supplyVendorId.toString(), order.status);
         (0, sendMail_1.sendMailUpdateOrder)(order.projectContractorId.toString(), order.status);
         (0, sendMail_1.sendMailUpdateOrder)(order.plannerId.toString(), order.status);

@@ -11,6 +11,7 @@ import authRouter from "./router/auth";
 import userRouter from "./router/user";
 import contractRouter from "./router/contract";
 import orderRouter from "./router/order";
+import notificationRouter from "./router/notification";
 
 const PORT = 4001;
 mongoose.set("strictQuery", false);
@@ -35,13 +36,14 @@ global._io.on("connection", socketService.connection);
 
 io.listen(Number(process.env.SOCKET_IO_PORT) || 1234);
 
-app.get("/", (req, res) => {
+app.get("/", (req, res) => { 
   res.send("I love you all ❤️");
 });
 app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
 app.use("/api/contract", contractRouter);
 app.use("/api/order", orderRouter);
+app.use("/api/notification", notificationRouter);
 
 app.listen(PORT, () => {
   console.log("love u");

@@ -22,7 +22,7 @@ export const formatContractData = (data) => {
       createAt: extractDate(createAt),
     })
   );
-    return modifiedData;
+  return modifiedData;
 };
 
 export const formatDataOrder = (orders) => {
@@ -41,6 +41,21 @@ export const formatDataOrder = (orders) => {
       message: note.message || undefined,
     })),
     createdAt: extractDate(order.createAt),
+  }));
+
+  return result;
+};
+
+export const formatDataNotification = (notifications) => {
+  const result = notifications.map((notification) => ({
+    _id: notification._id,
+    sender: notification.senderId,
+    userId: notification.userId,
+    content: notification.content,
+    link: notification.link,
+    isRead: notification.isRead,
+    isDeleted: notification.isDeleted,
+    createdAt: extractDate(notification.createAt),
   }));
 
   return result;

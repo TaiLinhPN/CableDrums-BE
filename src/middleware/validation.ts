@@ -39,7 +39,7 @@ export const userLoginValidation = (req: Request, res: Response, next: any) => {
   const validation = loginSchema.validate(req.body);
 
   if (validation.error) {
-    return res.status(400).json({
+    return res.status(401).json({
       errors: validation.error.details[0].path[0] + " is not a valid",
     });
   }
